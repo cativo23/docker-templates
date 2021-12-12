@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  error-pages:
+    image: tarampampam/error-pages:2.2.0
+    container_name: error-pages
+    environment:
+      TEMPLATE_NAME: ghost
+    networks:
+      - web
+    labels:
+      # - backup
+      - "autoheal=true"
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.traefik-error-pages-rtr.entrypoints=websecure"
+      - "traefik.http.routers.traefik-error-pages-rtr.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.traefik-error-pages-rtr.priority=10"
+      # Middlewares 
+      # Define middleware for error pages - https://dille.name/blog/2021/03/14/using-traefik-error-pages-to-handle-unavailable-services/
+      - "traefik.http.routers.traefik-error-pages-rtr.middlewares=traefik-error-pages"
+      - "traefik.http.middlewares.traefik-error-pages.errors.service=traefik-error-pages-svc"
+      - "traefik.http.middlewares.traefik-error-pages.errors.status=400-599"
+      - "traefik.http.middlewares.traefik-error-pages.errors.query=/{status}.html"
+      # HTTP Services
+      - "traefik.http.routers.traefik-error-pages-rtr.service=traefik-error-pages-svc"
+      - "traefik.http.services.traefik-error-pages-svc.loadbalancer.server.port=8080"
+    # logging:
+    #   driver: "json-file"
+    #   options:
+    #     max-size: 10m
+    #     max-file: "2"
+    restart: always
+
+networks:
+  web:
+    external: true

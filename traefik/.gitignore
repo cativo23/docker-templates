@@ -1,0 +1,7 @@
+acme.json
+.env
+traefik_secure.toml
+traefik.toml
+.git/
+start_traefik.bash
+README.md

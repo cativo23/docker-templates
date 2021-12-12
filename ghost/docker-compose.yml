@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  ghost:
+    image: ghost:alpine
+    volumes:
+     - /etc/localtime:/etc/localtime:ro
+     - ./content/:/var/lib/ghost/content
+    networks:
+    - web
+    environment:
+     - url=https://blog.${DOMAIN}
+    labels:
+     - "traefik.enable=true"
+     - "traefik.docker.network=web"
+     - "traefik.http.routers.ghost.rule=Host(`blog.${DOMAIN}`)"
+     - "traefik.http.services.ghost.loadbalancer.server.port=2368"
+     - "traefik.http.routers.ghost.entrypoints=websecure"
+     - "traefik.http.routers.ghost.service=ghost"
+     - "traefik.http.routers.ghost.tls.certresolver=lets-encrypt"
+     - "traefik.http.routers.ghost.tls=true"
+
+networks:
+  web:
+    external: true

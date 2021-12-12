@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+    traefik:
+        volumes:
+            - '/var/run/docker.sock:/var/run/docker.sock:ro'
+            - '$PWD/traefik.toml:/traefik.toml'
+            - '$PWD/traefik_secure.toml:/traefik_secure.toml'
+            - '$PWD/acme.json:/acme.json'
+        ports:
+            - '80:80'
+            - '443:443'
+        networks: 
+            - web
+        container_name: traefik
+        image: 'traefik:v2.5'
+
+networks:
+  web:
+    external: true

@@ -1,0 +1,32 @@
+version: "3.3"
+
+services:
+  portainer:
+    image: cr.portainer.io/portainer/portainer-ce:2.11.0
+    container_name: portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    networks:
+      - web
+    ports:
+      - '9000:9000'
+      - '8000:8000'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`portainer.${DOMAIN}`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
+      - "traefik.http.routers.frontend.service=frontend"
+      - "traefik.http.routers.frontend.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.docker.network=web"
+
+volumes:
+  portainer_data:
+
+networks:
+  web:
+    external: true
