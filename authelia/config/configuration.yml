@@ -120,6 +120,7 @@ regulation:
   ban_time: 300
 
 storage:
+  encryption_key: a_very_important_secret
 # supports more than one database 
 # in this case a local **file** is used as the "user" store and the other records go to **mysql**
   local:
