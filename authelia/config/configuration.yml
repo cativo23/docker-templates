@@ -1,0 +1,126 @@
+
+###############################################################################
+#                           Authelia Configuration                            #
+###############################################################################
+
+## Note: the container by default expects to find this file at /config/configuration.yml.
+
+## Certificates directory specifies where Authelia will load trusted certificates (public portion) from in addition to
+## the system certificates store.
+## They should be in base64 format, and have one of the following extensions: *.cer, *.crt, *.pem.
+# certificates_directory: /config/certificates/
+
+## The theme to display: light, dark, grey, auto.
+theme: dark
+
+##
+## Server Configuration
+##
+server:
+
+  ## The address to listen on.
+  host: 0.0.0.0
+
+  ## The port to listen on.
+  port: 9091
+
+  ## Set the single level path Authelia listens on.
+  ## Must be alphanumeric chars and should not contain any slashes.
+  path: ""
+
+  ## Set the path on disk to Authelia assets.
+  ## Useful to allow overriding of specific static assets.
+  # asset_path: /config/assets/
+
+  ## Buffers usually should be configured to be the same value.
+  ## Explanation at https://www.authelia.com/docs/configuration/server.html
+  ## Read buffer size adjusts the server's max incoming request size in bytes.
+  ## Write buffer size does the same for outgoing responses.
+  read_buffer_size: 4096
+  write_buffer_size: 4096
+
+  ## Enables the pprof endpoint.
+  enable_pprof: false
+
+  ## Enables the expvars endpoint.
+  enable_expvars: false
+
+  ## Disables writing the health check vars to /app/.healthcheck.env which makes healthcheck.sh return exit code 0.
+  ## This is disabled by default if either /app/.healthcheck.env or /app/healthcheck.sh do not exist.
+  disable_healthcheck: false
+
+##
+## Log Configuration
+##
+log:
+  ## Level of verbosity for logs: info, debug, trace.
+  level: debug
+
+##
+## TOTP Configuration
+##
+## Parameters used for TOTP generation.
+totp:
+  ## The issuer name displayed in the Authenticator application of your choice.
+  issuer: authelia.com
+
+  ## The TOTP algorithm to use.
+  ## It is CRITICAL you read the documentation before changing this option:
+  ## https://www.authelia.com/docs/configuration/one-time-password.html#algorithm
+  algorithm: sha1
+
+  ## The number of digits a user has to input. Must either be 6 or 8.
+  ## Changing this option only affects newly generated TOTP configurations.
+  ## It is CRITICAL you read the documentation before changing this option:
+  ## https://www.authelia.com/docs/configuration/one-time-password.html#digits
+  digits: 6
+
+  ## The period in seconds a one-time password is valid for.
+  ## Changing this option only affects newly generated TOTP configurations.
+  period: 30
+
+  ## The skew controls number of one-time passwords either side of the current one that are valid.
+  ## Warning: before changing skew read the docs link below.
+  skew: 1
+  ## See: https://www.authelia.com/docs/configuration/one-time-password.html#input-validation to read the documentation.
+
+authentication_backend:
+  disable_reset_password: false
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 1
+      salt_length: 16
+      parallelism: 8
+      memory: 64
+
+# https://docs.authelia.com/configuration/access-control.html
+access_control:
+  default_policy: deny
+  rules:
+#wildcard domain allowed to use double authentication for all services used byiteria
+    # - domain: "*.DOMAIN.COM"
+    #   policy: two_factor
+    - domain: heimdall.DOMAIN.COM
+      policy: one_factor
+
+session:
+  name: authelia_session
+# Used a different secret, but the same site as jwt_secret above.
+# session cookies to authenticate users
+  secret: 
+  expiration: 3600 # 1 hour
+  inactivity: 300 # 5 minutes
+  domain: DOMAIN.COM # Should match whatever your root protected domain is
+
+regulation:
+  max_retries: 3
+  find_time: 120
+  ban_time: 300
+
+storage:
+# supports more than one database 
+# in this case a local **file** is used as the "user" store and the other records go to **mysql**
+  local:
+    path: /config/db.sqlite3
