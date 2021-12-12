@@ -125,3 +125,15 @@ storage:
 # in this case a local **file** is used as the "user" store and the other records go to **mysql**
   local:
     path: /config/db.sqlite3
+
+notifier:
+  # Note Authelia tory only supports 1 notification method
+  #smtp:
+  #  username: YOURREMAIL@DOMAIN.COM
+  #  password: YOUR_PASSWORD
+  #  sender: YOURREMAIL@DOMAIN.COM
+  #  host: smtp.gmail.com
+  #  port: 587
+
+  filesystem:
+    filename: /config/notification.txt
